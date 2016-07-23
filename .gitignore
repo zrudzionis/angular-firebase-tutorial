@@ -1,5 +1,12 @@
-node_modules
 dist
 .tmp
 .sass-cache
-bower_components
+
+# npm packages
+node_modules/
+
+# bower packages
+bower_components/
+
+# ide specific files
+.idea/
