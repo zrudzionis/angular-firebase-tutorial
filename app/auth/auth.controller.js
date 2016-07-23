@@ -1,5 +1,5 @@
 angular.module('angularfireSlackApp')
-.controller('AuthCtrl', function(Auth, $state) {
+  .controller('AuthCtrl', function(Auth, $state) {
     var authCtrl, user;
 
     authCtrl = this;
@@ -8,10 +8,10 @@ angular.module('angularfireSlackApp')
     authCtrl.register = register;
 
     function login() {
-        Auth.login(authCtrl.account);
+      Auth.login(authCtrl.account);
     }
 
     function register() {
-        Auth.register(authCtrl.account);
+      Auth.register(authCtrl.account);
     }
-});
+  });
