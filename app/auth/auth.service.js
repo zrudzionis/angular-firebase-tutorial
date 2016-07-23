@@ -1,5 +1,5 @@
 angular.module('angularfireSlackApp')
-  .service('Auth', function($cookies, $state, $firebaseAuth, Firebase) {
+  .service('Auth', function($cookies, $state, $firebaseAuth, Firebase, Users) {
     var auth, firebaseAuth;
 
     firebaseAuth = $firebaseAuth(Firebase.auth());
@@ -34,7 +34,7 @@ angular.module('angularfireSlackApp')
     }
 
     function isAuthenticated() {
-      return !!$cookies.authenticatedAccount;
+      return getApi().$requireSignIn();
     }
 
     function unauthenticate() {
@@ -71,7 +71,7 @@ angular.module('angularfireSlackApp')
       return getApi().$signOut().then(logoutSuccessFn, logoutErrorFn);
 
       function logoutSuccessFn(data, status, headers, config) {
-        Authentication.unauthenticate();
+        Auth.unauthenticate();
 
         window.location = '/';
       }

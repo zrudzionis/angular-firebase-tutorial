@@ -25,6 +25,25 @@
           controllerAs: 'authCtrl',
           templateUrl: 'auth/register.html',
           resolve: requireNotAuthenticated,
+        })
+        .state('profile', {
+          url: '/profile',
+          templateUrl: 'users/profile.html',
+          resolve: {
+            auth: function($state, Auth) {
+              return Auth.isAuthenticated().catch(function() {
+                $state.go('home');
+              })
+            },
+            profile: function(Auth, Users) {
+              return Auth.isAuthenticated().then(isAuthenticatedSuccessFn);
+
+              function isAuthenticatedSuccessFn(auth) {
+                // TODO why do we need loaded, shouldn't get profile return a promise?
+                return Users.getProfile(auth.uid).$loaded();
+              }
+            }
+          }
         });
 
       $urlRouterProvider.otherwise('/');
@@ -33,14 +52,10 @@
   requireNotAuthenticated = {
     redirectIfAuthenticated: function($state, Auth) {
       // if user does not require authentitication promise will be redjected
-      return Auth.$requireSignIn().then(isAuthenticatedSuccess, isAuthenticatedError);
+      return Auth.isAuthenticated().then(isAuthenticatedSuccess);
 
       function isAuthenticatedSuccess() {
         $state.go('home');
-      }
-
-      function isAuthenticatedError() {
-        return;
       }
     }
   }
