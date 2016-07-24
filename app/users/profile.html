@@ -4,7 +4,7 @@
     <h1>Edit Profile</h1>
   </div>
 
-  <form ng-submit="profileCtrl.updateProfile()">
+  <form role="form" ng-submit="profileCtrl.updateProfile()">
     <p ng-hide="profileCtrl.profile.displayName">
       You will need a display name before starting chatting.
     </p>
@@ -12,11 +12,11 @@
     <div class="form-group">
       <label for="profile__display-name">Display name</label>
       <!--TODO what does required attribute?-->
-      <input required type="text" class="form-control" id="profile__display-name" placeholder="Display name" ng-model="profileCtrl.profile.displayName">
+      <input required type="text" class="form-control" id="profile__display-name" placeholder="Ex. Zilvis" ng-model="profileCtrl.profile.displayName">
     </div>
 
     <div class="form-group">
-      <input type="submit" class="btn btn-primary" value="Set display name">
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </form>
 
