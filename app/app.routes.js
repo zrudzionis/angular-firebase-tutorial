@@ -67,6 +67,7 @@
                   if (!profile.displayName) {
                     $state.go('profile');
                   }
+                  return profile;
                 }
               }
 
@@ -76,7 +77,14 @@
               }
             }
           }
-        });
+        })
+        .state('channels.create', {
+          url: '/create',
+          controller: 'ChannelsCtrl',
+          controllerAs: 'channelsCtrl',
+          templateUrl: 'channels/create.html',
+        })
+        ;
 
       $urlRouterProvider.otherwise('/');
     });
@@ -84,10 +92,14 @@
   requireNotAuthenticated = {
     redirectIfAuthenticated: function($state, Auth) {
       // if user does not require authentitication promise will be redjected
-      return Auth.isAuthenticated().then(isAuthenticatedSuccess);
+      return Auth.isAuthenticated().then(isAuthenticatedSuccessFn, isAuthenticatedErrorFn);
 
-      function isAuthenticatedSuccess() {
+      function isAuthenticatedSuccessFn(profile) {
         $state.go('home');
+      }
+
+      function isAuthenticatedErrorFn(error) {
+        return;
       }
     }
   };
@@ -95,10 +107,14 @@
   homeToChannelsIfAuthenticated = {
       redirectIfAuthenticated: function($state, Auth) {
       // if user does not require authentitication promise will be redjected
-      return Auth.isAuthenticated().then(isAuthenticatedSuccess);
+      return Auth.isAuthenticated().then(isAuthenticatedSuccessFn, isAuthenticatedErrorFn);
 
-      function isAuthenticatedSuccess() {
+      function isAuthenticatedSuccessFn() {
         $state.go('channels');
+      }
+
+      function isAuthenticatedErrorFn(error) {
+        console.error('Failed to authenticate while trying to reach home', error);
       }
     }
   };

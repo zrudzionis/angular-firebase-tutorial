@@ -1,9 +1,7 @@
 angular.module('angularfireSlackApp')
   .service('Users', function($firebaseArray, $firebaseObject, Firebase) {
-    var users, Users, usersRef;
-
-    usersRef = Firebase.database().ref().child('users');
-    users = $firebaseArray(usersRef);
+    var Users;
+    // TODO this service can be used only when user is authenticated how we can make is better?
     Users = {
       getProfile: getProfile,
       getDisplayName: getDisplayName,
@@ -11,21 +9,27 @@ angular.module('angularfireSlackApp')
       getGravatar: getGravatar,
     };
 
-    return Users;
 
-    function getProfile(uid) {
-      return $firebaseObject(usersRef.child(uid));
-    }
-
-    function getDisplayName(uid) {
-      return users.$getRecord(uid).displayName;
+    function getUsersRef() {
+      return Firebase.database().ref().child('users');
     }
 
     function all() {
-      return users;
+      return $firebaseArray(getUsersRef());
     }
 
-    function getGravatar(uid) {
-      return '//www.gravatar.com/avatar/' + users.$getRecord(uid).emailHash;
+    function getProfile(uid) {
+      return $firebaseObject(getUsersRef().child(uid));
     }
+
+    function getDisplayName(uid) {
+      return Users.all().$getRecord(uid).displayName;
+    }
+
+
+    function getGravatar(uid) {
+      return '//www.gravatar.com/avatar/' + Users.all().$getRecord(uid).emailHash;
+    }
+
+    return Users;
   });
