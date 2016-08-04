@@ -1,40 +1,38 @@
 angular.module('angularfireSlackApp')
-  .service('Auth', function($state, $firebaseAuth, Firebase) {
+  .service('Auth', function($state, $firebaseAuth, $firebaseObject, Firebase) {
     var auth, firebaseAuth;
 
     firebaseAuth = $firebaseAuth(Firebase.auth());
 
     Auth = {
-//      setAuthenticatedAccount: setAuthenticatedAccount,
       getAuthenticatedAccount: getAuthenticatedAccount,
       register: register,
       login: login,
-      isAuthenticated: isAuthenticated,
       unauthenticate: unauthenticate,
-      logout: logout
+      logout: logout,
+      onAuthStateChanged: onAuthStateChanged,
     };
+
+    Auth.onAuthStateChanged(function(account) {
+      if (account) {
+        $state.go('channels');
+      }else {
+        $state.go('home');
+      }
+    });
 
     return Auth;
 
+    function onAuthStateChanged(onAuthStateChangedFn) {
+      firebaseAuth.$onAuthStateChanged(onAuthStateChangedFn);
+    }
 
     function getApi() {
       return firebaseAuth;
     }
-//
-//    function setAuthenticatedAccount(account) {
-//      $cookies.authenticatedAccount = JSON.stringify(account);
-//    }
 
     function getAuthenticatedAccount() {
-      var account = $cookies.authenticatedAccount;
-
-      if (!!account) {
-        return JSON.parse(account);
-      }
-    }
-
-    function isAuthenticated() {
-      return getApi().$requireSignIn();
+      return getApi().$requireSignIn()
     }
 
     function unauthenticate() {
@@ -42,11 +40,12 @@ angular.module('angularfireSlackApp')
     }
 
     function login(account) {
-      getApi().$signInWithEmailAndPassword(account.email, account.password).then(loginSuccessFn, loginErrorFn);
+      return getApi()
+        .$signInWithEmailAndPassword(account.email, account.password)
+        .then(loginSuccessFn, loginErrorFn);
 
-      function loginSuccessFn() {
-//        Auth.setAuthenticatedAccount(account);
-        $state.go('home');
+      function loginSuccessFn(account) {
+        return account;
       }
 
       function loginErrorFn(error) {
@@ -55,7 +54,8 @@ angular.module('angularfireSlackApp')
     }
 
     function register(account) {
-      return getApi().$createUserWithEmailAndPassword(account.email, account.password)
+      return getApi()
+        .$createUserWithEmailAndPassword(account.email, account.password)
         .then(registerSuccessFn, registerErrorFn);
 
       function registerSuccessFn() {
@@ -68,14 +68,6 @@ angular.module('angularfireSlackApp')
     }
 
     function logout() {
-      return Auth.unauthenticate().then(logoutSuccessFn, logoutErrorFn);
-
-      function logoutSuccessFn(data, status, headers, config) {
-        $state.go('home');
-      }
-
-      function logoutErrorFn(data, status, headers, config) {
-        console.error('Failed to logout. Error:', status);
-      }
+      Auth.unauthenticate();
     }
   });

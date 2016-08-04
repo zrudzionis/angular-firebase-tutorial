@@ -8,10 +8,18 @@ angular.module('angularfireSlackApp')
     authCtrl.register = register;
 
     function login() {
-      Auth.login(authCtrl.account);
+      Auth.login(authCtrl.account).then(loginSuccessFn);
+
+      function loginSuccessFn(account) {
+        $state.go('home');
+      }
     }
 
     function register() {
-      Auth.register(authCtrl.account);
+      Auth.register(authCtrl.account).then(registerSuccessFn);
+
+      function registerSuccessFn(account) {
+        $state.go('home');
+      }
     }
   });

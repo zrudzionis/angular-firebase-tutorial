@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var requireNotAuthenticated, homeToChannelsIfAuthenticated;
+  var redirectToChannelsIfAuthenticated;
 
   angular
     .module('angularfireSlackApp')
@@ -11,21 +11,21 @@
         .state('home', {
           url: '/',
           templateUrl: 'home/home.html',
-          resolve: homeToChannelsIfAuthenticated,
+//          resolve: {
+//            novalue: redirectToChannelsIfAuthenticated,
+//          },
         })
         .state('login', {
           url: '/login',
           controller: 'AuthCtrl',
           controllerAs: 'authCtrl',
-          templateUrl: 'auth/login.html',
-          resolve: requireNotAuthenticated,
+          templateUrl: 'auth/login.html'
         })
         .state('register', {
           url: '/register',
           controller: 'AuthCtrl',
           controllerAs: 'authCtrl',
-          templateUrl: 'auth/register.html',
-          resolve: requireNotAuthenticated,
+          templateUrl: 'auth/register.html'
         })
         .state('profile', {
           url: '/profile',
@@ -33,19 +33,10 @@
           controllerAs: 'profileCtrl',
           templateUrl: 'users/profile.html',
           resolve: {
-            auth: function($state, Auth) {
-              return Auth.isAuthenticated().catch(function() {
-                $state.go('home');
-              })
+            account: function(Auth) {
+              return Auth.getAuthenticatedAccount();
             },
-            profile: function(Auth, Users) {
-              return Auth.isAuthenticated().then(isAuthenticatedSuccessFn);
-
-              function isAuthenticatedSuccessFn(auth) {
-                // TODO why do we need loaded, shouldn't get profile return a promise?
-                return Users.getProfile(auth.uid).$loaded();
-              }
-            }
+            profile: getProfileFn,
           }
         })
         .state('channels', {
@@ -54,27 +45,9 @@
           controllerAs: 'channelsCtrl',
           templateUrl: 'channels/index.html',
           resolve: {
+            profile: getProfileFn,
             channels: function(Channels) {
               return Channels.$loaded();
-            },
-            profile: function($state, Auth, Users) {
-              return Auth.isAuthenticated().then(isAuthenticatedSuccessFn, isAuthenticatedErrorFn);
-
-              function isAuthenticatedSuccessFn(auth) {
-                return Users.getProfile(auth.uid).$loaded().then(profileSuccessFn);
-
-                function profileSuccessFn(profile) {
-                  if (!profile.displayName) {
-                    $state.go('profile');
-                  }
-                  return profile;
-                }
-              }
-
-              function isAuthenticatedErrorFn(error) {
-                console.error('Channels requires authentication.')
-                $state.go('home');
-              }
             }
           }
         })
@@ -89,33 +62,30 @@
       $urlRouterProvider.otherwise('/');
     });
 
-  requireNotAuthenticated = {
-    redirectIfAuthenticated: function($state, Auth) {
-      // if user does not require authentitication promise will be redjected
-      return Auth.isAuthenticated().then(isAuthenticatedSuccessFn, isAuthenticatedErrorFn);
+  function getProfileFn(Auth, Users) {
+    var account = Auth.getAuthenticatedAccount();
 
-      function isAuthenticatedSuccessFn(profile) {
-        $state.go('home');
-      }
+    return account.then(getAccountSuccessFn);
 
-      function isAuthenticatedErrorFn(error) {
-        return;
+    function getAccountSuccessFn(account) {
+      return Users.ready().then(usersLoadedSuccessFn);
+
+      function usersLoadedSuccessFn(users) {
+        return Users.getProfile(account.uid);
       }
     }
-  };
+  }
 
-  homeToChannelsIfAuthenticated = {
-      redirectIfAuthenticated: function($state, Auth) {
-      // if user does not require authentitication promise will be redjected
-      return Auth.isAuthenticated().then(isAuthenticatedSuccessFn, isAuthenticatedErrorFn);
+  redirectToChannelsIfAuthenticated = function($state, Auth) {
+    // if user does not require authentitication promise will be redjected
+    return Auth.getAuthenticatedAccount().then(getAccountSuccessFn, getAccountErrorFn);
 
-      function isAuthenticatedSuccessFn() {
-        $state.go('channels');
-      }
+    function getAccountSuccessFn(account) {
+      $state.go('channels');
+    }
 
-      function isAuthenticatedErrorFn(error) {
-        console.error('Failed to authenticate while trying to reach home', error);
-      }
+    function getAccountErrorFn(error) {
+      console.error('Failed to authenticate while trying to reach home', error);
     }
   };
 })();

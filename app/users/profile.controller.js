@@ -1,5 +1,5 @@
 angular.module('angularfireSlackApp')
-  .controller('ProfileCtrl', function($state, md5, auth, profile) {
+  .controller('ProfileCtrl', function($state, md5, account, profile) {
     var profileCtrl;
 
     profileCtrl = this;
@@ -8,12 +8,8 @@ angular.module('angularfireSlackApp')
     profileCtrl.updateProfile = updateProfile;
 
     function updateProfile() {
-      profileCtrl.profile.emailHash = md5.createHash(auth.email);
-      profileCtrl.profile.$save().then(saveProfileSuccessFn, saveProfileErrorFn);
-
-      function saveProfileSuccessFn(profile) {
-        $state.go('channels');
-      }
+      profileCtrl.profile.emailHash = md5.createHash(account.email);
+      profileCtrl.profile.$save().catch(saveProfileErrorFn);
 
       function saveProfileErrorFn() {
         console.error('Failed to save profile');

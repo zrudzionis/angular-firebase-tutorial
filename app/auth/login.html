@@ -5,13 +5,15 @@
   </div>
 
   <form ng-submit="authCtrl.login()">
-    <div class="input-group">
-      <input type="email" class="form-control" placeholder="Email" ng-model="authCtrl.account.email">
+    <div class="form-group">
+      <label for="register__email">Email</label>
+      <input type="email" class="form-control" id="register__email" ng-model="authCtrl.account.email" placeholder="Ex. your@email.com">
     </div>
-    <div class="input-group">
-      <input type="password" class="form-control" placeholder="Password" ng-model="authCtrl.account.password">
+    <div class="form-group">
+      <label for="register__password">Password</label>
+      <input type="password" class="form-control" id="register__password" ng-model="authCtrl.account.password" placeholder="Ex. MySecretPassword">
     </div>
-    <input type="submit" class="btn btn-default" value="Log In">
+    <input type="submit" class="btn btn-primary" value="Log In">
   </form>
 
 </div>
