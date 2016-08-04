@@ -10,3 +10,6 @@ bower_components/
 
 # ide specific files
 .idea/
+
+# ignore config file
+app/app.js
